@@ -30,7 +30,7 @@ int main()
     trip1->id = 1;
     trip1->ppoints = ppoints;
     bwc->trips = trip1;
-    
+
     char *inst_mfjson1 = temporal_as_mfjson(bwc->trips->ppoints[ppoint1->tid-1].point, true, 3, 6, "EPSG:4326");
     char *inst_mfjson2 = temporal_as_mfjson(bwc->trips->ppoints[ppoint2->tid-1].point, true, 3, 6, "EPSG:4326");
     printf("\n"
@@ -50,9 +50,10 @@ int main()
     "MF-JSON:\n"
     "--------\n%s\n", inst_2, inst_mfjson2);
     free(bwc);
-    free(bwc->trips);
-    free(ppoint1->point);
-    free(ppoint2->point);
+    free(trip1);
+    free(ppoint1);
+    free(ppoint2);
+    free(ppoints);
     meos_finalize();
     return 0;
 }
