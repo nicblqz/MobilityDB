@@ -25,35 +25,30 @@ int main()
 
     Trips *trip1 = (Trips *) malloc(sizeof(Trips));
     PPoint ppoints[bwc->total];
-    ppoints[0] = *ppoint1;
-    ppoints[1] = *ppoint2;
+    if (ppoint1->priority < ppoint2->priority)
+    {
+        ppoints[0] = *ppoint2;
+        ppoints[1] = *ppoint1;
+    }
+    else
+    {
+        ppoints[0] = *ppoint1;
+        ppoints[1] = *ppoint2;
+    }
     trip1->id = 1;
     trip1->ppoints = ppoints;
     bwc->trips = trip1;
 
-    char *inst_mfjson1 = temporal_as_mfjson(bwc->trips->ppoints[ppoint1->tid-1].point, true, 3, 6, "EPSG:4326");
-    char *inst_mfjson2 = temporal_as_mfjson(bwc->trips->ppoints[ppoint2->tid-1].point, true, 3, 6, "EPSG:4326");
-    printf("\n"
-    "--------------------\n"
-    "| Temporal Instant 1|\n"
-    "--------------------\n\n"
-    "WKT:\n"
-    "----\n%s\n\n"
-    "MF-JSON:\n"
-    "--------\n%s\n", inst_1, inst_mfjson1);
-    printf("\n"
-    "--------------------\n"
-    "| Temporal Instant 2|\n"
-    "--------------------\n\n"
-    "WKT:\n"
-    "----\n%s\n\n"
-    "MF-JSON:\n"
-    "--------\n%s\n", inst_2, inst_mfjson2);
+    char *inst_mfjson1 = temporal_as_mfjson(bwc->trips->ppoints[0].point, true, 3, 6, "EPSG:4326");
+    char *inst_mfjson2 = temporal_as_mfjson(bwc->trips->ppoints[1].point, true, 3, 6, "EPSG:4326");
+    printf("\n-----------\nfirst point\n-----------\n\n");
+    printf("point %d: \n %s\n\n", bwc->trips->ppoints[0].tid, inst_mfjson1);
+    printf("-----------\nsecond point\n-----------\n\n");
+    printf("point %d: \n %s\n\n", bwc->trips->ppoints[1].tid, inst_mfjson2);
     free(bwc);
     free(trip1);
     free(ppoint1);
     free(ppoint2);
-    free(ppoints);
     meos_finalize();
     return 0;
 }
