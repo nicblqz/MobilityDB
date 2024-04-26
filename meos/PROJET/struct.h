@@ -14,10 +14,16 @@ typedef struct {
 } Trips;
 
 typedef struct {
+    PPoint *ppoint;
+    double priority;
+} priority_list;
+
+typedef struct {
     int total;
     int limit;
     int window;
     int start;
     Trips* trips;
     Trips* uncompressed_trips;
+    priority_list* priority_list;
 } BWC_DR;
