@@ -87,10 +87,12 @@ int main()
 
     // test get_expected_position
 
+    // test get x OK
     /*Temporal *x = tpoint_get_x(ppoint3->point);
     double x_str = tfloat_start_value(x);
-    printf("x: %f\n", x_str); test ok*/
+    printf("x: %f\n", x_str);*/
 
+    // test compute interval OK
     /*TimestampTz t1 = temporal_start_timestamptz(ppoint1->point);
     char *time_str = pg_timestamptz_out(t1);
     printf("start time: %s\n", time_str);
@@ -105,11 +107,12 @@ int main()
     printf("delta: %lld\n", delta_time);
     printf("delta: %f\n", inte); test ok*/
 
-
+    // test get_position OK
     /*Temporal *pos = get_position(ppoint1, t2);
     char *pos_str = temporal_as_mfjson(pos, true, 3, 6, "EPSG:4326");
     printf("position: %s\n", pos_str); test ok*/
 
+    // test distance between points OK
     /*TInstant *instants[2];
     instants[0] = (TInstant*) ppoint1->point;
     instants[1] = (TInstant*) ppoint2->point;
@@ -121,6 +124,7 @@ int main()
     double distance = nad_tpoint_tpoint(ppoint1->point, ppoint2->point); 
     printf("distance: %lf\n", distance); test ok*/
     
+    // test manipulate structures OK
     /*Trip *trip1 = (Trip *) malloc(sizeof(Trip));
     PPoint ppoints[bwc->total];
     priority_list p_list[] = {{ppoint1, ppoint1->priority}, {ppoint2, ppoint2->priority}, {ppoint3, ppoint3->priority}};
