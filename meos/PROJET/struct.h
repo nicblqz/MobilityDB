@@ -1,5 +1,7 @@
 #include "meos.h"
 
+#define MAX_INSTANTS 50000
+
 typedef struct {
     int tid;
     Temporal* point;
@@ -9,9 +11,11 @@ typedef struct {
 } PPoint;
 
 typedef struct {
-    int id;
-    PPoint* ppoints;
-} Trips;
+    int tid;
+    int size;
+    TInstant *instants[MAX_INSTANTS];
+    Temporal *trip[MAX_INSTANTS];
+} Trip;
 
 typedef struct {
     PPoint *ppoint;
@@ -23,7 +27,7 @@ typedef struct {
     int limit;
     int window;
     int start;
-    Trips* trips;
-    Trips* uncompressed_trips;
+    Trip* trips;
+    Trip* uncompressed_trips;
     priority_list* priority_list;
 } BWC_DR;
