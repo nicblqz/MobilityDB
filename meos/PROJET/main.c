@@ -4,72 +4,17 @@
 #include "struct.h"
 #include <math.h>
 
-void sorted_priority_list(priority_list* list, int size) {
-    for (int i = 0; i < size - 1; i++) {
-        for (int j = i + 1; j < size; j++) {
-            if (list[i].priority > list[j].priority) {
-                priority_list temp = list[i];
-                list[i] = list[j];
-                list[j] = temp;
-            }
-        }
-    }
-}
+#include "BWC_DR.h"
 
-Temporal *get_expected_position(Trip *trip, Temporal *point){
-    int index = 0;
-    for (int i = 0; i < trip->size; i++){
-        if (trip->trip[i] == point){
-            index = i;
-        }
-    }
-    TimestampTz time = temporal_start_timestamptz(point);
-    if (index == 0) return point;
-    else {
-        return get_position(trip->trip[index-1], time);
-    }
-}
-
-Temporal *get_position(PPoint *ppoint, TimestampTz time)
-{
-    TimestampTz ts = temporal_start_timestamptz(ppoint->point);
-    double speed = (ppoint->sog) * 1852 / 3600;  // from knots to m/s
-    double angle = ((int)(ppoint->cog)%360) * M_PI / 180; // from degrees to radians
-    TimestampTz deltat = time - ts;
-    double delta = deltat / 1000000; // from microseconds to seconds
-    Temporal *start_x = tpoint_get_x(ppoint->point);
-    Temporal *start_y = tpoint_get_y(ppoint->point);
-    double x = tfloat_start_value(start_x) + speed * delta * cos(angle);
-    double y = tfloat_start_value(start_y) + speed * delta * sin(angle);
-    char inst[100];
-    sprintf(inst, "SRID=4326;POINT(%f %f)@%s", x, y, pg_timestamptz_out(time));
-    return tgeompoint_in(inst);
-} // ok
-
-double evaluate_priority(BWC_DR *bwc, PPoint *ppoint)
-{
-    int tid = ppoint->tid;
-    if (bwc->trips[tid].size > 1){
-        Temporal *expected_position = get_expected_position(bwc->trips[tid].trip, ppoint->point);
-        Temporal *current_position = ppoint->point;
-        double distance = nad_tpoint_tpoint(expected_position,current_position); //= distance2D(expected_position, current_position);
-        return distance;
-    } else {
-        return INFINITY;
-    } 
-}
+// gcc -Wall -g -I/usr/local/include -o main main.c BWC_DR.c -L/usr/local/lib -lmeos
 
 int main()
 {
     meos_initialize(NULL, NULL);
 
-    /*BWC_DR *bwc;
-    bwc = (BWC_DR *) malloc(sizeof(BWC_DR));*/
-
     char *inst_1 = "SRID=4326;POINT(1 1)@2000-01-01 00:00:00+01";
-    char *inst_2 = "SRID=4326;POINT(2 2)@2000-01-02 00:00:00+01";
-    char *inst_3 = "POINT(3 3)@2000-01-03";
-    //bwc->total = 3;
+    char *inst_2 = "SRID=4326;POINT(314295.822102 314295.822102)@2000-01-02 00:00:00+01";
+    char *inst_3 = "SRID=4326;POINT(3 3)@2000-01-03 00:00:00+01";
 
     PPoint *ppoint1 = (PPoint *) malloc(sizeof(PPoint));
     ppoint1->tid = 1;
@@ -79,13 +24,29 @@ int main()
     PPoint *ppoint2 = (PPoint *) malloc(sizeof(PPoint));
     ppoint2->tid = 1;
     ppoint2->point = tgeompoint_in(inst_2);
-    ppoint2->priority = 3;
     PPoint *ppoint3 = (PPoint *) malloc(sizeof(PPoint));
     ppoint3->tid = 1;
     ppoint3->point = tgeompoint_in(inst_3);
-    ppoint3->priority = 2;
 
-    // test get_expected_position
+    // test evaluate_priority OK
+    /*BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
+    Trip *trip1 = (Trip *) malloc(sizeof(Trip));
+    trip1->size = 2;
+    trip1->tid = 1;
+    trip1->trip[0] = ppoint1;
+    trip1->trip[1] = ppoint2;
+    bwc->total = 1;
+    bwc->trips[0] = trip1;
+    ppoint2->priority = evaluate_priority(bwc,ppoint2);
+    printf("Point 2 priority : %f", ppoint2->priority);*/
+
+    // test get_expected_position OK
+    /*Trip *trip1 = (Trip *) malloc(sizeof(Trip));
+    trip1->size = 1;
+    trip1->trip[0] = ppoint1;
+    Temporal *expected_position = get_expected_position(trip1, ppoint1);
+    char *expected_position_str = temporal_as_mfjson(expected_position, true, 3, 6, "EPSG:4326");
+    printf("expected position: %s\n", expected_position_str);*/
 
     // test get x OK
     /*Temporal *x = tpoint_get_x(ppoint3->point);
@@ -145,13 +106,14 @@ int main()
     {
         printf("point %d \n", bwc->trips->ppoints[i].tid);
     }
-    /*printf("point 1: %s\n", inst_mfjson1);
+    printf("point 1: %s\n", inst_mfjson1);
     printf("point 2: %s\n", inst_mfjson2);
     printf("point 3: %s\n", inst_mfjson3);*/
     //free(bwc);
     //free(trip1);
     free(ppoint1);
     free(ppoint2);
+    free(ppoint3);
     meos_finalize();
     return 0;
 }

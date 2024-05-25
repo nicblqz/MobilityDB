@@ -1,98 +1,70 @@
-#include "MobilityDB/meos/include/meos.h"
-#include <utils/timestamp.h>
-#include "general/temporal.h"
-#include "math.h"
+#include "meos.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "struct.h"
+#include <math.h>
 
-typedef struct{
-    double x;
-    double y;
-    TimestampTz time;
-} Point;
+#include "BWC_DR.h"
 
-typedef struct {
-    int tid;
-    Point point; // Temporal voir example
-    double priority;
-    double sog;
-    double cog;
-} PriorityPoint;
-
-typedef struct {
-    int id;
-    PriorityPoint* points;
-} trips;
-
-typedef struct {
-    //nys ??? -> plan
-    int limit;
-    int window;
-    int start;
-    int total = 0;
-    trips trips;
-    priority_list priority_list;
-    // i, finalized_trips
-    trips uncompressed_trips;
-    priority_list* finished_windows; // Queue ?
-} BWC_DR;
-
-typedef struct {
-    PriorityPoint ppoint;
-    struct priority_list_node* next;
-} priority_list_node;
-
-typedef struct {
-    priority_list_node* head;
-} priority_list;
-
-void sorted_priority_list(priority_list* list, PriorityPoint* ppoint) {
-    priority_list_node* new_node = (priority_list_node*) malloc(sizeof(priority_list_node));
-    new_node->ppoint = ppoint;
-    new_node->next = NULL;
-    if (list->head == NULL) {
-        list->head = new_node;
-    } else {
-        priority_list_node* current = list->head;
-        priority_list_node* previous = NULL;
-        while (current != NULL && current->ppoint->priority < ppoint->priority) {
-            previous = current;
-            current = current->next;
-        }
-        if (previous == NULL) {
-            new_node->next = list->head;
-            list->head = new_node;
-        } else {
-            previous->next = new_node;
-            new_node->next = current;
+void sorted_priority_list(priority_list* list, int size) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = i + 1; j < size; j++) {
+            if (list[i].priority > list[j].priority) {
+                priority_list temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
         }
     }
 }
 
-void init_priority_list(BWC_DR* bwc, PriorityPoint* ppoint) {
-    bwc->priority_list = sorted_priority_list(bwc->priority_list, ppoint);
-}
-
-int check_next_window(BWC_DR *bwc, PriorityPoint* ppoint) {
-    TimestampTz time = ppoint->point.time;
-    if (time > bwc->start + bwc->window) {
-        while (time > bwc->start + bwc->window)
-            bwc->start += bwc->window;
-        bwc->finished_window = bwc->priority_list;
-        bwc->priority_list = sorted_priority_list(bwc->priority_list, ppoint);
-        return 1;
+Temporal *get_expected_position(Trip *trip, PPoint *point){
+    int index = 0;
+    for (int i = 0; i < trip->size; i++){
+        if (trip->trip[i] == point){
+            index = i;
+        }
     }
-    return 0;
+
+    TimestampTz time = temporal_start_timestamptz(point->point);
+    if (index == 0) return point->point;
+    else {
+        return get_position(trip->trip[index-1], time);
+    }
 }
 
-int add_point(BWC_DR *bwc, PriorityPoint* ppoint) {
-    int new_window = check_next_window(bwc, ppoint);
-    bwc->total += 1;
-    if (ppoint->tid not in bwc->trips) { // (not in) pas en c
-        bwc->trips[ppoint->tid] = (PriorityPoint*) malloc(sizeof(PriorityPoint));
-        bwc->trips[ppoint->tid] = ppoint;
-        ppoint->priority = HUGE_VAL;
+Temporal *get_position(PPoint *ppoint, TimestampTz time)
+{
+    TimestampTz ts = temporal_start_timestamptz(ppoint->point);
+    double speed = (ppoint->sog) * 1852 / 3600;  // from knots to m/s
+    double angle = ((int)(ppoint->cog)%360) * M_PI / 180; // from degrees to radians
+    TimestampTz deltat = time - ts;
+    double delta = deltat / 1000000; // from microseconds to seconds
+    Temporal *start_x = tpoint_get_x(ppoint->point);
+    Temporal *start_y = tpoint_get_y(ppoint->point);
+    double x = tfloat_start_value(start_x) + speed * delta * cos(angle);
+    double y = tfloat_start_value(start_y) + speed * delta * sin(angle);
+    char inst[100];
+    sprintf(inst, "SRID=4326;POINT(%f %f)@%s", x, y, pg_timestamptz_out(time));
+    return tgeompoint_in(inst);
+} // ok
+
+double evaluate_priority(BWC_DR *bwc, PPoint *ppoint)
+{
+    int tid = ppoint->tid;
+    Trip *trip;
+
+    for (int i = 0; i < bwc->total; i++){
+        if (bwc->trips[i]->tid == tid) {
+            trip =  bwc->trips[i];
+            }
+    }
+    if (trip->size > 1){
+        Temporal *expected_position = get_expected_position(trip, ppoint);
+        Temporal *current_position = ppoint->point;
+        double distance = nad_tpoint_tpoint(expected_position,current_position); //= distance2D(expected_position, current_position);
+        return distance;
     } else {
-        bwc->trips[ppoint->tid] = ppoint;
-        ppoint->priority = 0; //evaluate priority
-    }
-    return new_window;
+        return INFINITY;
+    } 
 }
