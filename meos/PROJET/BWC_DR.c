@@ -6,23 +6,67 @@
 
 #include "BWC_DR.h"
 
-void sorted_priority_list(priority_list* list, int size) {
-    for (int i = 0; i < size - 1; i++) {
-        for (int j = i + 1; j < size; j++) {
-            if (list[i].priority > list[j].priority) {
-                priority_list temp = list[i];
-                list[i] = list[j];
-                list[j] = temp;
+bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
+    TimestampTz time = temporal_start_timestamptz(ppoint->point);
+    TimestampTz comp = add_timestamptz_interval(bwc->start, bwc->window);
+    if (time > comp){
+        while (time > comp)
+        {
+            bwc->start = add_timestamptz_interval(bwc->start, bwc->window);
+        }
+        // finished windows + priority list
+        return true;
+    }
+    return false;
+}
+
+bool add_point(BWC_DR *bwc, PPoint *ppoint){
+    bool new_window = check_next_window(bwc, ppoint);
+    bwc->total++;
+    bwc->uncompressed_trips->size++;
+    bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size] = ppoint;
+
+    for (int i = 0; i < bwc->total; i++){
+        if (bwc->trips[i]->tid == ppoint->tid){
+            bwc->trips[i]->size++;
+            bwc->trips[i]->trip[bwc->trips[i]->size] = ppoint;
+            ppoint->priority = evaluate_priority(bwc, ppoint);
+        } else {
+            bwc->trips[i]->size++;
+            bwc->trips[i]->trip[ppoint->tid] = ppoint;
+            ppoint->priority = INFINITY;
+        }
+    }
+
+    bwc->priority_list->size++;
+    bwc->priority_list->ppoints[bwc->priority_list->size] = ppoint;
+    sorted_priority_list(bwc->priority_list);
+
+    while (bwc->priority_list->size > bwc->limit){
+        break;
+    }
+    return new_window;
+}
+
+void sorted_priority_list(priority_list* list) {
+    for (int i = 0; i < list->size - 1; i++) {
+        for (int j = i + 1; j < list->size; j++) {
+            if (list->ppoints[i]->priority > list->ppoints[j]->priority) {
+                PPoint *temp = list->ppoints[i];
+                list->ppoints[i] = list->ppoints[j];
+                list->ppoints[j] = temp;
             }
         }
     }
 }
 
 Temporal *get_expected_position(Trip *trip, PPoint *point){
+    printf("trip size : %d\n", trip->size);
     int index = 0;
     for (int i = 0; i < trip->size; i++){
         if (trip->trip[i] == point){
             index = i;
+            printf("index : %d\n", index);
         }
     }
 
@@ -61,8 +105,7 @@ double evaluate_priority(BWC_DR *bwc, PPoint *ppoint)
     }
     if (trip->size > 1){
         Temporal *expected_position = get_expected_position(trip, ppoint);
-        Temporal *current_position = ppoint->point;
-        double distance = nad_tpoint_tpoint(expected_position,current_position); //= distance2D(expected_position, current_position);
+        double distance = nad_tpoint_tpoint(expected_position,ppoint->point);
         return distance;
     } else {
         return INFINITY;

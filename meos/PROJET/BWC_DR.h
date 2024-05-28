@@ -22,21 +22,22 @@ typedef struct {
 } Trip;
 
 typedef struct {
-    PPoint *ppoint;
-    double priority;
+    int size;
+    PPoint *ppoints[MAX_INSTANTS];
 } priority_list;
 
 typedef struct {
     int total;
     int limit;
-    int window;
-    int start;
+    const Interval *window;
+    TimestampTz start;
     Trip* trips[5];
     Trip* uncompressed_trips;
     priority_list* priority_list;
 } BWC_DR;
 
-void sorted_priority_list(priority_list* list, int size);
+bool add_point(BWC_DR *bwc, PPoint *ppoint);
+void sorted_priority_list(priority_list* list);
 Temporal *get_expected_position(Trip *trip, PPoint *point);
 Temporal *get_position(PPoint *ppoint, TimestampTz time);
 double evaluate_priority(BWC_DR *bwc, PPoint *ppoint);
