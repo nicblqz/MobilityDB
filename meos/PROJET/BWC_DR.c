@@ -13,6 +13,7 @@ bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
         while (time > comp)
         {
             bwc->start = add_timestamptz_interval(bwc->start, bwc->window);
+            comp = add_timestamptz_interval(bwc->start, bwc->window);
         }
         // finished windows + priority list
         return true;
