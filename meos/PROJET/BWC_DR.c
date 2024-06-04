@@ -15,8 +15,9 @@ bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
             bwc->start = add_timestamptz_interval(bwc->start, bwc->window);
             comp = add_timestamptz_interval(bwc->start, bwc->window);
         }
-        bwc->finished_windows_size++;
         bwc->finished_windows[bwc->finished_windows_size] = bwc->priority_list;
+        bwc->finished_windows_size++;
+
         priority_list *new_list = (priority_list *) malloc(sizeof(priority_list));
         new_list->size = 0;
         bwc->priority_list = new_list;
@@ -28,31 +29,33 @@ bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
 bool add_point(BWC_DR *bwc, PPoint *ppoint){
     bool new_window = check_next_window(bwc, ppoint);
     bwc->total++;
+
+    bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size] = ppoint;
     bwc->uncompressed_trips->size++;
-    bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size-1] = ppoint;
 
     for (int i = 0; i < bwc->number_of_trips; i++){
         if (bwc->trips[i]->tid == ppoint->tid){
+            bwc->trips[i]->trip[bwc->trips[i]->size] = ppoint;
             bwc->trips[i]->size++;
-            bwc->trips[i]->trip[bwc->trips[i]->size-1] = ppoint;
             ppoint->priority = evaluate_priority(bwc, ppoint);
         } else {
             bwc->trips[i+1] = (Trip *) malloc(sizeof(Trip));
             bwc->trips[i+1]->size = 1;
             bwc->trips[i+1]->tid = ppoint->tid;
-            ppoint->priority = INFINITY;
             bwc->trips[i+1]->trip[0] = ppoint;
+            ppoint->priority = INFINITY; // it doesnt work I dont know why, because ppoint->tid is updated and priority is not
             bwc->number_of_trips++;
         }
     }
 
+    bwc->priority_list->ppoints[bwc->priority_list->size] = ppoint;
     bwc->priority_list->size++;
-    bwc->priority_list->ppoints[bwc->priority_list->size-1] = ppoint;
     sorted_priority_list(bwc->priority_list);
 
     while (bwc->priority_list->size > bwc->limit){
         remove_point(bwc);
     }
+
     return new_window;
 }
 
@@ -86,14 +89,17 @@ Temporal *get_expected_position(Trip *trip, PPoint *point){
 Temporal *get_position(PPoint *ppoint, TimestampTz time)
 {
     TimestampTz ts = temporal_start_timestamptz(ppoint->point);
-    double speed = (ppoint->sog) * 1852 / 3600;  // from knots to m/s
-    double angle = ((int)(ppoint->cog)%360) * M_PI / 180; // from degrees to radians
     TimestampTz deltat = time - ts;
     double delta = deltat / 1000000; // from microseconds to seconds
+
+    double speed = (ppoint->sog) * 1852 / 3600;  // from knots to m/s
+    double angle = ((int)(ppoint->cog)%360) * M_PI / 180; // from degrees to radians
+
     Temporal *start_x = tpoint_get_x(ppoint->point);
     Temporal *start_y = tpoint_get_y(ppoint->point);
     double x = tfloat_start_value(start_x) + speed * delta * cos(angle);
     double y = tfloat_start_value(start_y) + speed * delta * sin(angle);
+
     char inst[100];
     sprintf(inst, "SRID=4326;POINT(%f %f)@%s", x, y, pg_timestamptz_out(time));
     return tgeompoint_in(inst);
@@ -123,7 +129,9 @@ void remove_point(BWC_DR *bwc){
     for (int i = 0; i < bwc->priority_list->size; i++) {
         bwc->priority_list->ppoints[i] = bwc->priority_list->ppoints[i+1];
     }
+    bwc->priority_list->ppoints[bwc->priority_list->size] = NULL;
     bwc->priority_list->size--;
+
     Trip *trip = bwc->trips[to_remove->tid];
     int to_remove_index;
     for (int i = 0; i < trip->size; i++){
@@ -132,9 +140,11 @@ void remove_point(BWC_DR *bwc){
             break;
         }   
     }
+
     for (int i = to_remove_index; i < trip->size; i++) {
         trip->trip[i] = trip->trip[i+1];
     }
+    trip->trip[trip->size] = NULL;
     trip->size--;
 
     for (int i = to_remove_index; i<trip->size; i++){
@@ -146,5 +156,8 @@ void remove_point(BWC_DR *bwc){
             }
         }
     } 
+    
+    bwc->trips[to_remove->tid] = trip;
     sorted_priority_list(bwc->priority_list);
+    bwc->total--;
 }
