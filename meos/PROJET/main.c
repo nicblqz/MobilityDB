@@ -32,6 +32,32 @@ int main()
     ppoint3->cog = 45;
     ppoint3->point = tgeompoint_in(inst_3);
 
+    // tests on timestamptz type OK
+    /*char* date = "2000-01-01 00:00:00+01";
+    char* date2 = "2000-01-01 00:00:01+01";
+    char* date3 = "2000-01-01 00:01:00+01";
+    char* date4 = "2000-01-01 01:00:00+01";
+    char* date5 = "2000-01-02 00:00:00+01";
+    char* date6 = "2000-02-01 00:00:00+01";
+    char* date7 = "2001-01-01 00:00:00+01";
+    char* date8 = "2024-01-01 01:00:00+01";
+    TimestampTz t = pg_timestamptz_in(date, -1);
+    TimestampTz t2 = pg_timestamptz_in(date2, -1);
+    TimestampTz t3 = pg_timestamptz_in(date3, -1);
+    TimestampTz t4 = pg_timestamptz_in(date4, -1);
+    TimestampTz t5 = pg_timestamptz_in(date5, -1);
+    TimestampTz t6 = pg_timestamptz_in(date6, -1);
+    TimestampTz t7 = pg_timestamptz_in(date7, -1);
+    TimestampTz t8 = pg_timestamptz_in(date8, -1);
+    printf("t1: %lld\n", t);
+    printf("t2: %lld\n", t2);
+    printf("t3: %lld\n", t3);
+    printf("t4: %lld\n", t4);
+    printf("t5: %lld\n", t5);
+    printf("t6: %lld\n", t6);
+    printf("t7: %lld\n", t7);
+    printf("t8: %lld\n", t8);*/
+
     // test get x OK
     /*Temporal *x = tpoint_get_x(ppoint3->point);
     double x_str = tfloat_start_value(x);
@@ -117,7 +143,17 @@ int main()
         printf("Point %d priority : %f\n", i, p_list->ppoints[i]->priority);
     }*/
 
-    //test add_point 
+    //test check_next_window OK
+    /*char *inst_4 = "SRID=4326;POINT(1 1)@2000-01-03 00:00:01+01";
+    Temporal *point = tgeompoint_in(inst_4);
+    PPoint *ppoint = (PPoint *) malloc(sizeof(PPoint));
+    ppoint->point = point;
+    BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
+    const Interval *window = (const Interval *) malloc(sizeof(Interval));
+    window = pg_interval_in("1 day", -1);
+    bwc->window = window;
+    bwc->start = pg_timestamptz_in("2000-01-01 00:00:00+01", -1);
+    bool new_window = check_next_window(bwc, ppoint);*/
 
     //free(bwc);
     //free(trip1);

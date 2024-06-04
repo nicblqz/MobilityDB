@@ -34,8 +34,11 @@ typedef struct {
     Trip* trips[5];
     Trip* uncompressed_trips;
     priority_list* priority_list;
+    int finished_windows_size;
+    priority_list* finished_windows[5];
 } BWC_DR;
 
+bool check_next_window(BWC_DR *bwc, PPoint *ppoint);
 bool add_point(BWC_DR *bwc, PPoint *ppoint);
 void sorted_priority_list(priority_list* list);
 Temporal *get_expected_position(Trip *trip, PPoint *point);

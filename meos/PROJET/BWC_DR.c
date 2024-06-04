@@ -15,7 +15,11 @@ bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
             bwc->start = add_timestamptz_interval(bwc->start, bwc->window);
             comp = add_timestamptz_interval(bwc->start, bwc->window);
         }
-        // finished windows + priority list
+        bwc->finished_windows_size++;
+        bwc->finished_windows[bwc->finished_windows_size] = bwc->priority_list;
+        priority_list *new_list = (priority_list *) malloc(sizeof(priority_list));
+        new_list->size = 0;
+        bwc->priority_list = new_list;
         return true;
     }
     return false;
@@ -23,6 +27,9 @@ bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
 
 bool add_point(BWC_DR *bwc, PPoint *ppoint){
     bool new_window = check_next_window(bwc, ppoint);
+    if (new_window){
+        printf("New window\n");
+    }
     bwc->total++;
     bwc->uncompressed_trips->size++;
     bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size] = ppoint;
