@@ -44,3 +44,4 @@ void sorted_priority_list(priority_list* list);
 Temporal *get_expected_position(Trip *trip, PPoint *point);
 Temporal *get_position(PPoint *ppoint, TimestampTz time);
 double evaluate_priority(BWC_DR *bwc, PPoint *ppoint);
+void remove_point(BWC_DR *bwc);

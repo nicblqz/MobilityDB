@@ -51,7 +51,7 @@ bool add_point(BWC_DR *bwc, PPoint *ppoint){
     sorted_priority_list(bwc->priority_list);
 
     while (bwc->priority_list->size > bwc->limit){
-        break;
+        remove_point(bwc);
     }
     return new_window;
 }
@@ -116,4 +116,35 @@ double evaluate_priority(BWC_DR *bwc, PPoint *ppoint)
     } else {
         return INFINITY;
     } 
+}
+
+void remove_point(BWC_DR *bwc){
+    PPoint *to_remove = bwc->priority_list->ppoints[0];
+    for (int i = 0; i < bwc->priority_list->size; i++) {
+        bwc->priority_list->ppoints[i] = bwc->priority_list->ppoints[i+1];
+    }
+    bwc->priority_list->size--;
+    Trip *trip = bwc->trips[to_remove->tid];
+    int to_remove_index;
+    for (int i = 0; i < trip->size; i++){
+        if (trip->trip[i] == to_remove){
+            to_remove_index = i;
+            break;
+        }   
+    }
+    for (int i = to_remove_index; i < trip->size; i++) {
+        trip->trip[i] = trip->trip[i+1];
+    }
+    trip->size--;
+
+    for (int i = to_remove_index; i<trip->size; i++){
+        PPoint *to_update = trip->trip[i];
+        to_update->priority = evaluate_priority(bwc, to_update);
+        for (int j = 0; j < bwc->priority_list->size; j++){
+            if (bwc->priority_list->ppoints[j] == to_update){
+                bwc->priority_list->ppoints[j]->priority = to_update->priority;
+            }
+        }
+    } 
+    sorted_priority_list(bwc->priority_list);
 }
