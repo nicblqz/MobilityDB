@@ -132,8 +132,16 @@ void remove_point(BWC_DR *bwc){
     bwc->priority_list->ppoints[bwc->priority_list->size] = NULL;
     bwc->priority_list->size--;
 
-    Trip *trip = bwc->trips[to_remove->tid];
-    int to_remove_index;
+    Trip *trip = (Trip *) malloc(sizeof(Trip));
+    int trip_index = 0;
+    for (int i = 0; i < bwc->number_of_trips; i++){
+        if (bwc->trips[i]->tid == to_remove->tid){
+            trip_index = i;
+            trip = bwc->trips[i];
+        }
+    }
+
+    int to_remove_index = 0;
     for (int i = 0; i < trip->size; i++){
         if (trip->trip[i] == to_remove){
             to_remove_index = i;
@@ -142,9 +150,13 @@ void remove_point(BWC_DR *bwc){
     }
 
     for (int i = to_remove_index; i < trip->size; i++) {
+        if (i == trip->size - 1) {
+            trip->trip[i] = NULL;
+        }
+        else {
         trip->trip[i] = trip->trip[i+1];
+        }
     }
-    trip->trip[trip->size] = NULL;
     trip->size--;
 
     for (int i = to_remove_index; i<trip->size; i++){
@@ -156,8 +168,8 @@ void remove_point(BWC_DR *bwc){
             }
         }
     } 
-    
-    bwc->trips[to_remove->tid] = trip;
+
+    bwc->trips[trip_index] = trip;
     sorted_priority_list(bwc->priority_list);
     bwc->total--;
 }

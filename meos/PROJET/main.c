@@ -181,7 +181,11 @@ int main()
     printf("dbeyqlsk %f\n", bwc->trips[0]->trip[0]->priority);
     printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);
     printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[0]->priority);
-    printf("dbeyqlsk %f", bwc->priority_list->ppoints[1]->priority);
+    printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[1]->priority);
+    remove_point(bwc);
+    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[0]->priority);
+    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);
+
     //free(bwc);
     //free(trip1);
     free(ppoint1);
