@@ -17,7 +17,6 @@ typedef struct {
 typedef struct {
     int tid;
     int size;
-    TInstant *instants[MAX_INSTANTS];
     PPoint *trip[MAX_INSTANTS];
 } Trip;
 
@@ -31,11 +30,12 @@ typedef struct {
     int limit;
     const Interval *window;
     TimestampTz start;
-    Trip* trips[5];
+    int number_of_trips;
+    Trip* trips[MAX_INSTANTS];
     Trip* uncompressed_trips;
     priority_list* priority_list;
     int finished_windows_size;
-    priority_list* finished_windows[5];
+    priority_list* finished_windows[MAX_INSTANTS];
 } BWC_DR;
 
 bool check_next_window(BWC_DR *bwc, PPoint *ppoint);

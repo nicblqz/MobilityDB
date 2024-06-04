@@ -27,27 +27,27 @@ bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
 
 bool add_point(BWC_DR *bwc, PPoint *ppoint){
     bool new_window = check_next_window(bwc, ppoint);
-    if (new_window){
-        printf("New window\n");
-    }
     bwc->total++;
     bwc->uncompressed_trips->size++;
-    bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size] = ppoint;
+    bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size-1] = ppoint;
 
-    for (int i = 0; i < bwc->total; i++){
+    for (int i = 0; i < bwc->number_of_trips; i++){
         if (bwc->trips[i]->tid == ppoint->tid){
             bwc->trips[i]->size++;
-            bwc->trips[i]->trip[bwc->trips[i]->size] = ppoint;
+            bwc->trips[i]->trip[bwc->trips[i]->size-1] = ppoint;
             ppoint->priority = evaluate_priority(bwc, ppoint);
         } else {
-            bwc->trips[i]->size++;
-            bwc->trips[i]->trip[ppoint->tid] = ppoint;
+            bwc->trips[i+1] = (Trip *) malloc(sizeof(Trip));
+            bwc->trips[i+1]->size = 1;
+            bwc->trips[i+1]->tid = ppoint->tid;
             ppoint->priority = INFINITY;
+            bwc->trips[i+1]->trip[0] = ppoint;
+            bwc->number_of_trips++;
         }
     }
 
     bwc->priority_list->size++;
-    bwc->priority_list->ppoints[bwc->priority_list->size] = ppoint;
+    bwc->priority_list->ppoints[bwc->priority_list->size-1] = ppoint;
     sorted_priority_list(bwc->priority_list);
 
     while (bwc->priority_list->size > bwc->limit){
@@ -69,12 +69,10 @@ void sorted_priority_list(priority_list* list) {
 }
 
 Temporal *get_expected_position(Trip *trip, PPoint *point){
-    printf("trip size : %d\n", trip->size);
     int index = 0;
     for (int i = 0; i < trip->size; i++){
         if (trip->trip[i] == point){
             index = i;
-            printf("index : %d\n", index);
         }
     }
 
@@ -99,14 +97,14 @@ Temporal *get_position(PPoint *ppoint, TimestampTz time)
     char inst[100];
     sprintf(inst, "SRID=4326;POINT(%f %f)@%s", x, y, pg_timestamptz_out(time));
     return tgeompoint_in(inst);
-} // ok
+} 
 
 double evaluate_priority(BWC_DR *bwc, PPoint *ppoint)
 {
     int tid = ppoint->tid;
     Trip *trip;
 
-    for (int i = 0; i < bwc->total; i++){
+    for (int i = 0; i < bwc->number_of_trips; i++){
         if (bwc->trips[i]->tid == tid) {
             trip =  bwc->trips[i];
             }
