@@ -170,9 +170,12 @@ int main()
     printf("trip 0 : %f\n", bwc->trips[0]->trip[0]->priority);
     printf("trip 1 : %f\n", bwc->trips[0]->trip[1]->priority);
     printf("trip 2 : %f\n", bwc->trips[0]->trip[2]->priority);
+    //printf("finished windows 0 : %f\n", bwc->finished_windows[0]->ppoints[0]->priority); 
+    //printf("finished windows 1 : %f\n", bwc->finished_windows[0]->ppoints[1]->priority);
     printf("priority 0 : %f\n", bwc->priority_list->ppoints[0]->priority);
     printf("priority 1 : %f\n", bwc->priority_list->ppoints[1]->priority);
     printf("priority 2 : %f\n", bwc->priority_list->ppoints[2]->priority);
+    
     remove_point(bwc);
     printf("------------------\n"); 
     printf("trip 0 : %f\n", bwc->trips[0]->trip[0]->priority);
