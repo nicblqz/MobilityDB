@@ -49,7 +49,7 @@ bool add_point(BWC_DR *bwc, PPoint *ppoint){
     bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size] = ppoint;
     bwc->uncompressed_trips->size++;
 
-    bool in_trip = false;
+    bool tid_found = false;
     if (bwc->number_of_trips == 0){
         bwc->trips[0] = (Trip *) malloc(sizeof(Trip));
         bwc->trips[0]->size = 1;
@@ -60,12 +60,12 @@ bool add_point(BWC_DR *bwc, PPoint *ppoint){
     } else {
     for (int i = 0; i < bwc->number_of_trips; i++){
         if (bwc->trips[i]->tid == ppoint->tid){
-            in_trip = true;
+            tid_found = true;
             bwc->trips[i]->trip[bwc->trips[i]->size] = ppoint;
             bwc->trips[i]->size++;
             ppoint->priority = evaluate_priority(bwc, ppoint);
         } 
-    } if (!in_trip){
+    } if (!tid_found){
         bwc->trips[bwc->number_of_trips] = (Trip *) malloc(sizeof(Trip));
         bwc->trips[bwc->number_of_trips]->size = 1;
         bwc->trips[bwc->number_of_trips]->tid = ppoint->tid;
