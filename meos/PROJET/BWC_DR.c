@@ -17,6 +17,7 @@ void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval){
     bwc->finished_windows[0] = (priority_list *) malloc(sizeof(priority_list));
     bwc->finished_windows[0]->size = 0;
     bwc->finished_windows_size = 0;
+    bwc->number_of_trips = 0;
     bwc->start = pg_timestamptz_in(start, -1);
     bwc->window = pg_interval_in(interval, -1);
 }
@@ -48,18 +49,29 @@ bool add_point(BWC_DR *bwc, PPoint *ppoint){
     bwc->uncompressed_trips->trip[bwc->uncompressed_trips->size] = ppoint;
     bwc->uncompressed_trips->size++;
 
+    bool in_trip = false;
+    if (bwc->number_of_trips == 0){
+        bwc->trips[0] = (Trip *) malloc(sizeof(Trip));
+        bwc->trips[0]->size = 1;
+        bwc->trips[0]->tid = ppoint->tid;
+        bwc->trips[0]->trip[0] = ppoint;
+        ppoint->priority = INFINITY;
+        bwc->number_of_trips++;
+    } else {
     for (int i = 0; i < bwc->number_of_trips; i++){
         if (bwc->trips[i]->tid == ppoint->tid){
+            in_trip = true;
             bwc->trips[i]->trip[bwc->trips[i]->size] = ppoint;
             bwc->trips[i]->size++;
             ppoint->priority = evaluate_priority(bwc, ppoint);
-        } else {
-            bwc->trips[i+1] = (Trip *) malloc(sizeof(Trip));
-            bwc->trips[i+1]->size = 1;
-            bwc->trips[i+1]->tid = ppoint->tid;
-            bwc->trips[i+1]->trip[0] = ppoint;
-            ppoint->priority = INFINITY; // it doesnt work I dont know why, because ppoint->tid is updated and priority is not
-            bwc->number_of_trips++;
+        } 
+    } if (!in_trip){
+        bwc->trips[bwc->number_of_trips] = (Trip *) malloc(sizeof(Trip));
+        bwc->trips[bwc->number_of_trips]->size = 1;
+        bwc->trips[bwc->number_of_trips]->tid = ppoint->tid;
+        bwc->trips[bwc->number_of_trips]->trip[0] = ppoint;
+        ppoint->priority = INFINITY; 
+        bwc->number_of_trips++;
         }
     }
 

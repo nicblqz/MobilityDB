@@ -157,13 +157,18 @@ int main()
     printf(pg_timestamp_out(bwc->start));*/
 
     // test add_point OK
+    /*BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
+    init_bwc(bwc, 3, "2000-01-01 00:00:00+01", "1 day");
+    bool new_window = add_point(bwc, ppoint1);
+    printf("trip tid 1 : %f\n", bwc->trips[0]->trip[0]->priority);
+    new_window = add_point(bwc, ppoint2);
+    printf("trip tid 2 : %f\n", bwc->trips[1]->trip[0]->priority);
+    new_window = add_point(bwc, ppoint3);
+    printf("trip tid 1 : %f\n", bwc->trips[0]->trip[1]->priority);*/
+
+    // test finak OK
     BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
     init_bwc(bwc, 3, "2000-01-01 00:00:00+01", "1 day");
-    Trip *trip1 = (Trip *) malloc(sizeof(Trip));
-    trip1->size = 0;
-    trip1->tid = 1;
-    bwc->number_of_trips++;
-    bwc->trips[0] = trip1;
     bool new_window = add_point(bwc, ppoint1);
     new_window = add_point(bwc, ppoint2);
     new_window = add_point(bwc, ppoint3);
