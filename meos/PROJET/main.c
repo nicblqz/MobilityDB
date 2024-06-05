@@ -13,8 +13,8 @@ int main()
     meos_initialize(NULL, NULL);
 
     char *inst_1 = "SRID=4326;POINT(1 1)@2000-01-01 00:00:00+01";
-    char *inst_2 = "SRID=4326;POINT(2 2)@2000-01-01 00:00:01+01";
-    char *inst_3 = "SRID=4326;POINT(3 3)@2000-01-03 00:00:00+01";
+    char *inst_2 = "SRID=4326;POINT(2 2)@2000-01-01 00:00:02+01";
+    char *inst_3 = "SRID=4326;POINT(3 3)@2000-01-01 00:00:03+01";
 
     PPoint *ppoint1 = (PPoint *) malloc(sizeof(PPoint));
     ppoint1->tid = 1;
@@ -157,7 +157,7 @@ int main()
     printf(pg_timestamp_out(bwc->start));*/
 
     // test add_point OK
-    BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
+    /*BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
     const Interval *window = (const Interval *) malloc(sizeof(Interval));
     priority_list *p_list = (priority_list *) malloc(sizeof(priority_list));
     Trip *trip1 = (Trip *) malloc(sizeof(Trip));
@@ -178,13 +178,16 @@ int main()
     bwc->total = 0;
     bool new_window = add_point(bwc, ppoint1);
     new_window = add_point(bwc, ppoint2);
+    new_window = add_point(bwc, ppoint3);
     printf("dbeyqlsk %f\n", bwc->trips[0]->trip[0]->priority);
     printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);
+    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[2]->priority);
     printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[0]->priority);
     printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[1]->priority);
+    printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[2]->priority);
     remove_point(bwc);
     printf("dbeyqlsk %f\n", bwc->trips[0]->trip[0]->priority);
-    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);
+    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);*/
 
     //free(bwc);
     //free(trip1);
