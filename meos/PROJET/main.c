@@ -157,37 +157,32 @@ int main()
     printf(pg_timestamp_out(bwc->start));*/
 
     // test add_point OK
-    /*BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
-    const Interval *window = (const Interval *) malloc(sizeof(Interval));
-    priority_list *p_list = (priority_list *) malloc(sizeof(priority_list));
+    BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
+    init_bwc(bwc, 3, "2000-01-01 00:00:00+01", "1 day");
     Trip *trip1 = (Trip *) malloc(sizeof(Trip));
-    Trip *uncompressed_trips = (Trip *) malloc(sizeof(Trip));
     trip1->size = 0;
     trip1->tid = 1;
-    bwc->number_of_trips = 1;
+    bwc->number_of_trips++;
     bwc->trips[0] = trip1;
-    bwc->uncompressed_trips = uncompressed_trips;
-    bwc->uncompressed_trips->size = 0;
-    window = pg_interval_in("1 day", -1);
-    bwc->window = window;
-    bwc->start = pg_timestamptz_in("2000-01-01 00:00:00+01", -1);
-    bwc->limit = 3;
-    bwc->finished_windows_size = 0;
-    bwc->priority_list = p_list;
-    bwc->priority_list->size = 0;
-    bwc->total = 0;
     bool new_window = add_point(bwc, ppoint1);
     new_window = add_point(bwc, ppoint2);
     new_window = add_point(bwc, ppoint3);
-    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[0]->priority);
-    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);
-    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[2]->priority);
-    printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[0]->priority);
-    printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[1]->priority);
-    printf("dbeyqlsk %f\n", bwc->priority_list->ppoints[2]->priority);
+    printf("trip 0 : %f\n", bwc->trips[0]->trip[0]->priority);
+    printf("trip 1 : %f\n", bwc->trips[0]->trip[1]->priority);
+    printf("trip 2 : %f\n", bwc->trips[0]->trip[2]->priority);
+    printf("priority 0 : %f\n", bwc->priority_list->ppoints[0]->priority);
+    printf("priority 1 : %f\n", bwc->priority_list->ppoints[1]->priority);
+    printf("priority 2 : %f\n", bwc->priority_list->ppoints[2]->priority);
     remove_point(bwc);
-    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[0]->priority);
-    printf("dbeyqlsk %f\n", bwc->trips[0]->trip[1]->priority);*/
+    printf("------------------\n"); 
+    printf("trip 0 : %f\n", bwc->trips[0]->trip[0]->priority);
+    printf("trip 1 : %f\n", bwc->trips[0]->trip[1]->priority);
+    printf("priority 0 : %f\n", bwc->priority_list->ppoints[0]->priority);
+    printf("priority 1 : %f\n", bwc->priority_list->ppoints[1]->priority);
+    remove_point(bwc);
+    printf("------------------\n");
+    printf("trip 0 : %f\n", bwc->trips[0]->trip[0]->priority);
+    printf("priority 0 : %f\n", bwc->priority_list->ppoints[0]->priority);
 
     //free(bwc);
     //free(trip1);

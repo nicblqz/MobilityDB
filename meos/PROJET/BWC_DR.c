@@ -6,6 +6,21 @@
 
 #include "BWC_DR.h"
 
+void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval){
+    bwc->total = 0;
+    bwc->limit = limit;
+    bwc->number_of_trips = 0;
+    bwc->uncompressed_trips = (Trip *) malloc(sizeof(Trip));
+    bwc->uncompressed_trips->size = 0;
+    bwc->priority_list = (priority_list *) malloc(sizeof(priority_list));
+    bwc->priority_list->size = 0;
+    bwc->finished_windows[0] = (priority_list *) malloc(sizeof(priority_list));
+    bwc->finished_windows[0]->size = 0;
+    bwc->finished_windows_size = 0;
+    bwc->start = pg_timestamptz_in(start, -1);
+    bwc->window = pg_interval_in(interval, -1);
+}
+
 bool check_next_window(BWC_DR *bwc, PPoint *ppoint){
     TimestampTz time = temporal_start_timestamptz(ppoint->point);
     TimestampTz comp = add_timestamptz_interval(bwc->start, bwc->window);
@@ -173,3 +188,5 @@ void remove_point(BWC_DR *bwc){
     sorted_priority_list(bwc->priority_list);
     bwc->total--;
 }
+
+

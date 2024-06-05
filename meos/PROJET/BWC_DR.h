@@ -38,6 +38,7 @@ typedef struct {
     priority_list* finished_windows[MAX_INSTANTS];
 } BWC_DR;
 
+void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval);
 bool check_next_window(BWC_DR *bwc, PPoint *ppoint);
 bool add_point(BWC_DR *bwc, PPoint *ppoint);
 void sorted_priority_list(priority_list* list);
