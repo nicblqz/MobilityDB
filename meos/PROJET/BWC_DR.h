@@ -3,8 +3,7 @@
 #include "stdlib.h"
 #include "struct.h"
 #include <math.h>
-
-#define MAX_INSTANTS 50000
+#include <string.h>
 
 typedef struct {
     int tid;
@@ -17,12 +16,12 @@ typedef struct {
 typedef struct {
     int tid;
     int size;
-    PPoint *trip[MAX_INSTANTS];
+    PPoint *points[256];
 } Trip;
 
 typedef struct {
     int size;
-    PPoint *ppoints[MAX_INSTANTS];
+    PPoint *ppoints[4];
 } priority_list;
 
 typedef struct {
@@ -31,11 +30,11 @@ typedef struct {
     const Interval *window;
     TimestampTz start;
     int number_of_trips;
-    Trip* trips[MAX_INSTANTS];
-    Trip* uncompressed_trips;
+    Trip* trips[70]; 
+    Trip* uncompressed_trips[70];
     priority_list* priority_list;
-    int finished_windows_size;
-    priority_list* finished_windows[MAX_INSTANTS];
+    int finished_windows_count;
+    priority_list* finished_windows[813];
 } BWC_DR;
 
 void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval);
