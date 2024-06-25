@@ -63,16 +63,6 @@ bool add_point(BWC_DR *bwc, PPoint *ppoint){
     bwc->total++;
 
     bool tid_found = false;
-    if (bwc->number_of_trips == 0){
-        bwc->uncompressed_trips[0]->size = 1;
-        bwc->trips[0]->size = 1;
-        bwc->uncompressed_trips[0]->tid = ppoint->tid;
-        bwc->trips[0]->tid = ppoint->tid;
-        ppoint->priority = INFINITY;
-        bwc->uncompressed_trips[0]->points[0] = ppoint;
-        bwc->trips[0]->points[0] = ppoint;
-        bwc->number_of_trips++;
-    } else {
     for (int i = 0; i < bwc->number_of_trips; i++){
         if (bwc->trips[i]->tid == ppoint->tid){
             tid_found = true;
@@ -92,7 +82,7 @@ bool add_point(BWC_DR *bwc, PPoint *ppoint){
         bwc->trips[bwc->number_of_trips]->points[0] = ppoint;
         bwc->number_of_trips++;
         }
-    }
+   // }
 
     bwc->priority_list->ppoints[bwc->priority_list->size] = ppoint;
     bwc->priority_list->size++;
