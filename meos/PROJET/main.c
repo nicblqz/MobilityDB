@@ -90,7 +90,7 @@ int main()
     for (int i = 0; i < 4; i++){
         free(bwc->priority_list->ppoints[i]);
     }
-    for (int i = 0; i < 70; i++){
+    for (int i = 0; i < 128; i++){
         free(bwc->trips[i]);
         free(bwc->uncompressed_trips[i]);
         for (int j = 0; j < 256; j++){
@@ -98,7 +98,7 @@ int main()
             free(bwc->uncompressed_trips[i]->points[j]);
         }
     }
-    for (int i = 0; i < 813; i++){
+    for (int i = 0; i < 1024; i++){
         free(bwc->finished_windows[i]);
         for (int j = 0; j < 4; j++){
             free(bwc->finished_windows[i]->ppoints[j]);

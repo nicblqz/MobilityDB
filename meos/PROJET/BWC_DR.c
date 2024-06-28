@@ -12,7 +12,7 @@ void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval){
     for (int i = 0; i < 4; i++){
         bwc->priority_list->ppoints[i] = (PPoint *) malloc(sizeof(PPoint));
     }
-    for (int i = 0; i < 70; i++){
+    for (int i = 0; i < 128; i++){
         bwc->trips[i] = (Trip *) malloc(sizeof(Trip));
         bwc->uncompressed_trips[i] = (Trip *) malloc(sizeof(Trip));
         for (int j = 0; j < 256; j++){
@@ -20,7 +20,7 @@ void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval){
             bwc->uncompressed_trips[i]->points[j] = (PPoint *) malloc(sizeof(PPoint));
         }
     }
-    for (int i = 0; i < 813; i++){
+    for (int i = 0; i < 1024; i++){
         bwc->finished_windows[i] = (priority_list *) malloc(sizeof(priority_list));
         for (int j = 0; j < 4; j++){
             bwc->finished_windows[i]->ppoints[j] = (PPoint *) malloc(sizeof(PPoint));
@@ -121,7 +121,6 @@ Temporal *get_expected_position(Trip *trip, PPoint *point){
     if (index == 0) return point->point;
     else {
         return get_position(trip->points[index-1], time);
-        printf("expected position\n");
     }
 }
 

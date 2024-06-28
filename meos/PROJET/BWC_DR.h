@@ -30,11 +30,11 @@ typedef struct {
     const Interval *window;
     TimestampTz start;
     int number_of_trips;
-    Trip* trips[70]; 
-    Trip* uncompressed_trips[70];
+    Trip* trips[128]; 
+    Trip* uncompressed_trips[128];
     priority_list* priority_list;
     int finished_windows_count;
-    priority_list* finished_windows[813];
+    priority_list* finished_windows[1024];
 } BWC_DR;
 
 void init_bwc(BWC_DR *bwc, int limit, char* start, char* interval);

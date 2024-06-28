@@ -12,13 +12,13 @@ int main()
 {
     meos_initialize(NULL, NULL);
 
-    char *inst_1 = "SRID=4326;POINT(14.376078333333334 40.63037666666666)@2024-01-26 11:47:39.790272+01";
-    char *inst_2 = "SRID=4326;POINT(14.37608 40.63037666666666)@2024-01-26 11:47:43.067087+01";
-    char *inst_3 = "SRID=4326;POINT(14.376081666666666 40.630379999999995)@2024-01-26 11:48:57.512489+01";
-    char *inst_4 = "SRID=4326;POINT(14.376081666666666 40.63037666666666)@2024-01-26 11:50:10.115083+01";
-    char *inst_5 = "SRID=4326;POINT(14.376081666666666 40.63037666666666)@2024-01-26 11:50:12.777446+01";
-    char *inst_6 = "SRID=4326;POINT(14.376085 40.63036666666667)@2024-01-26 11:51:13.910862+01";
-    char *inst_7 = "SRID=4326;POINT(14.37609 40.63037666666666)@2024-01-26 11:52:13.200907+01";
+    char *inst_1 = "SRID=32632;POINT(14.376078333333334 40.63037666666666)@2024-01-26 11:47:39.790272+01";
+    char *inst_2 = "SRID=32632;POINT(14.37608 40.63037666666666)@2024-01-26 11:47:43.067087+01";
+    char *inst_3 = "SRID=32632;POINT(14.376081666666666 40.630379999999995)@2024-01-26 11:48:57.512489+01";
+    char *inst_4 = "SRID=32632;POINT(14.376081666666666 40.63037666666666)@2024-01-26 11:50:10.115083+01";
+    char *inst_5 = "SRID=32632;POINT(14.376081666666666 40.63037666666666)@2024-01-26 11:50:12.777446+01";
+    char *inst_6 = "SRID=32632;POINT(14.376085 40.63036666666667)@2024-01-26 11:51:13.910862+01";
+    char *inst_7 = "SRID=32632;POINT(14.37609 40.63037666666666)@2024-01-26 11:52:13.200907+01";
 
 
 
@@ -124,30 +124,39 @@ int main()
     printf("delta: %lld\n", delta_time);
     printf("delta: %f\n", inte); test ok*/
 
-    // test get_expected_position OK
+    //test get_expected_position OK
     /*Trip *trip1 = (Trip *) malloc(sizeof(Trip));
     trip1->size = 2;
-    trip1->trip[0] = ppoint1;
-    trip1->trip[1] = ppoint2;
+    trip1->points[0] = ppoint1;
+    trip1->points[1] = ppoint2;
     Temporal *expected_position = get_expected_position(trip1, ppoint2);
-    char *expected_position_str = temporal_as_mfjson(expected_position, true, 3, 6, "EPSG:4326");
-    printf("expected position: %s\n", expected_position_str);*/
+    Temporal *x = tpoint_get_x(expected_position);
+    Temporal *y = tpoint_get_y(expected_position);
+    Temporal *x2 = tpoint_get_x(ppoint2->point);
+    Temporal *y2 = tpoint_get_y(ppoint2->point);
+    printf("expected position: (%f %f), actual point (%f %f)\n", tfloat_start_value(x), tfloat_start_value(y), tfloat_start_value(x2), tfloat_start_value(y2));*/
 
     // test get_position OK
     /*Temporal *pos = get_position(ppoint1, t2);
-    char *pos_str = temporal_as_mfjson(pos, true, 3, 6, "EPSG:4326");
+    char *pos_str = temporal_as_mfjson(pos, true, 3, 6, "EPSG:32632");
     printf("position: %s\n", pos_str); test ok*/
 
     // test evaluate_priority OK
-    /*BWC_DR *bwc = (BWC_DR *) malloc(sizeof(BWC_DR));
+    /*BWC_DR *bwc1 = (BWC_DR *) malloc(sizeof(BWC_DR));
     Trip *trip1 = (Trip *) malloc(sizeof(Trip));
     trip1->size = 2;
-    trip1->tid = 1;
-    trip1->trip[0] = ppoint1;
-    trip1->trip[1] = ppoint2;
-    bwc->total = 1;
-    bwc->trips[0] = trip1;
-    ppoint2->priority = evaluate_priority(bwc,ppoint2);
+    trip1->tid = 247070900;
+    trip1->points[0] = ppoint1;
+    trip1->points[1] = ppoint2;
+    Temporal *expected_position = get_expected_position(trip1, ppoint2);
+    Temporal *x = tpoint_get_x(expected_position);
+    Temporal *y = tpoint_get_y(expected_position);
+    Temporal *x2 = tpoint_get_x(ppoint2->point);
+    Temporal *y2 = tpoint_get_y(ppoint2->point);
+    printf("expected position: (%f %f), actual point (%f %f)\n", tfloat_start_value(x), tfloat_start_value(y), tfloat_start_value(x2), tfloat_start_value(y2));
+    bwc1->total = 1;
+    bwc1->trips[0] = trip1;
+    ppoint2->priority = evaluate_priority(bwc1,ppoint2);
     printf("Point 2 priority : %f", ppoint2->priority);*/
     
     // test priority list OK
@@ -199,7 +208,7 @@ int main()
     for (int k = 1; k < 7; k++){
       for (int i = 0; i < bwc->number_of_trips; i++){
         for (int j = 0; j < bwc->trips[i]->size; j++){
-            printf("\ntrip %d : %f\n", bwc->trips[i]->tid, bwc->trips[i]->trip[j]->priority);
+            printf("\ntrip %d : %f\n", bwc->trips[i]->tid, bwc->trips[i]->points[j]->priority);
         }
       }
     if (new_window){
@@ -218,7 +227,7 @@ int main()
     }
           for (int i = 0; i < bwc->number_of_trips; i++){
         for (int j = 0; j < bwc->trips[i]->size; j++){
-            printf("trip %d : %f\n", bwc->trips[i]->tid, bwc->trips[i]->trip[j]->priority);
+            printf("trip %d : %f\n", bwc->trips[i]->tid, bwc->trips[i]->points[j]->priority);
         }
       }
     if (new_window){
@@ -237,7 +246,7 @@ int main()
     for (int k = 1; k < 7; k++){
       for (int i = 0; i < bwc2->number_of_trips; i++){
         for (int j = 0; j < bwc2->trips[i]->size; j++){
-            printf("trip %d : %f\n", bwc2->trips[i]->tid, bwc2->trips[i]->trip[j]->priority);
+            printf("trip %d : %f\n", bwc2->trips[i]->tid, bwc2->trips[i]->points[j]->priority);
         }
       }
     if (new_window){
@@ -256,7 +265,7 @@ int main()
     }
           for (int i = 0; i < bwc2->number_of_trips; i++){
         for (int j = 0; j < bwc2->trips[i]->size; j++){
-            printf("trip %d : %f\n", bwc2->trips[i]->tid, bwc2->trips[i]->trip[j]->priority);
+            printf("trip %d : %f\n", bwc2->trips[i]->tid, bwc2->trips[i]->points[j]->priority);
         }
       }
     if (new_window){
@@ -298,96 +307,16 @@ int main()
     printf("trip 0 : %f\n", bwc->trips[0]->trip[0]->priority);
     printf("priority 0 : %f\n", bwc->priority_list->ppoints[0]->priority);*/
 
-    FILE *file = fopen("stream.csv", "r");
-    BWC_DR *bwc1 = (BWC_DR *) malloc(sizeof(BWC_DR));
-
-
-    if (! file)
-    {
-        printf("Error opening input file\n");
-        return 1;
-    }
-
-    char timestamp_buffer[32];
-    int tid = 0;
-    char x[32];
-    char y[32];
-    double sog = 0.0;
-    double cog = 0.0;
-    int i = 0;
-    int no_records = 0;
-    int no_nulls = 0;
-    char inst[128];
-    PPoint *ppoint = (PPoint *) malloc(sizeof(PPoint));
-
-  do
-  {
-    int read = fscanf(file, "%[^,],%d,%[^,],%[^,],%lf,%lf\n",
-      timestamp_buffer, &tid, x, y, &sog, &cog);
-
-    if (i == 0){
-        init_bwc(bwc1, 4, timestamp_buffer, "10 seconds");
-    }
-    i++;
-    sprintf(inst, "SRID=4326;POINT(%s %s)@%s+01", x, y, timestamp_buffer);
-    ppoint->tid = tid;
-    ppoint->point = tgeompoint_in(inst);
-    ppoint->sog = sog;
-    ppoint->cog = cog;
-
-    add_point(bwc1, ppoint);
-
-    if (read == 6)
-      no_records++;
-
-    if (read != 6 && !feof(file))
-    {
-      printf("Record with missing values ignored\n");
-      no_nulls++;
-    }
-
-    if (ferror(file))
-    {
-      printf("Error reading input file\n");
-      fclose(file);
-      return 1;
-    }
-
-
-
-  } //while (!feof(file)); 
-    while (i < 14);
-
-  printf("\n%d no_records read.\n%d incomplete records ignored.\n",
-    no_records, no_nulls);
-
-  printf("Number of trips: %d\n", bwc1->number_of_trips);
-  for (int i = 0; i < bwc1->number_of_trips; i++){
-    printf("trip size %d : %d\n", i, bwc1->trips[i]->size);
-    for (int j = 0; j < bwc1->trips[i]->size; j++){
-        printf("trip %d : %f\n", bwc1->trips[i]->tid, bwc1->trips[i]->trip[j]->priority);
-    }
-  }
-    for (int i = 0; i < bwc1->finished_windows_count; i++){
-      for (int j = 0; j < bwc1->finished_windows[i]->size; j++){
-            printf("finished window %d : %f\n", i, bwc1->finished_windows[i]->ppoints[j]->priority);
-        }
-    }
-    if (bwc1->priority_list->size > 0){
-    for (int i = 0; i < bwc1->priority_list->size; i++){
-            printf("priority %d : %f\n", i, bwc1->priority_list->ppoints[i]->priority);
-        }
-    }
-
-  fclose(file);
-
-    free(bwc);
-    free(bwc1);
     //free(trip1);
     //free(ppoint);
     free(ppoint1);
     free(ppoint2);
     free(ppoint3);
+    free(ppoint4);
+    free(ppoint5);
+    free(ppoint6);
+    free(ppoint7);
+    free(bwc);
     meos_finalize();
     return 0;
 }
